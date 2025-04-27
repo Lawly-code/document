@@ -1,0 +1,16 @@
+services:
+  app:
+    restart: always
+    build:
+      dockerfile: ../Dockerfile
+      context: app/
+    networks:
+      - lawly_db
+    env_file:
+      - app/.env
+    ports:
+      - "8800:80"
+
+networks:
+  lawly_db:
+    external: true
