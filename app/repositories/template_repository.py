@@ -11,14 +11,19 @@ class TemplateRepository(BaseRepository):
     def __init__(self, session: AsyncSession):
         super().__init__(session)
 
-    async def get_templates(self, query: str | None, limit: int, offset: int) -> list[model]:
+    async def get_templates(
+        self, query: str | None, limit: int, offset: int
+    ) -> list[model]:
         """
         Возвращает список шаблонов документов по поисковому запросу
         """
         stmt = select(self.model)
 
         if query:
-            stmt = stmt.where(func.lower(self.model.name_ru).ilike(f"%{query.lower()}%"))
+            stmt = stmt.where(
+                func.lower(self.model.name_ru).ilike(f"%{query.lower()}%"),
+                self.model.user_id.is_(None),
+            )
 
         stmt = stmt.limit(limit).offset(offset)
 
@@ -32,7 +37,9 @@ class TemplateRepository(BaseRepository):
         stmt = select(func.count(self.model.id))
 
         if query:
-            stmt = stmt.where(func.lower(self.model.name_ru).ilike(f"%{query.lower()}%"))
+            stmt = stmt.where(
+                func.lower(self.model.name_ru).ilike(f"%{query.lower()}%")
+            )
 
         result = await self.session.execute(stmt)
         return int(result.scalar())
@@ -41,6 +48,17 @@ class TemplateRepository(BaseRepository):
         """
         Возвращает шаблон документа по ID
         """
-        query = select(self.model).where(self.model.id == template_id)
+        query = select(self.model).where(
+            self.model.id == template_id, self.model.user_id.is_(None)
+        )
         result = await self.session.execute(query)
         return result.scalar()
+
+    async def create(self, entity: model):
+        """
+        Создает новый шаблон документа
+        :param entity: объект шаблона
+        :return: созданный шаблон
+        """
+        self.session.add(entity)
+        await self.session.commit()

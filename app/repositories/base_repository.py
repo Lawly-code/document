@@ -6,6 +6,6 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save(self, entity: Base, session: AsyncSession):
-        session.add(entity)
-        await session.commit()
+    async def save(self, entity: Base):
+        self.session.add(entity)
+        await self.session.commit()

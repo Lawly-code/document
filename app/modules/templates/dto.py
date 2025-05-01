@@ -1,9 +1,13 @@
-from lawly_db.db_models.enum_models import FieldTypeENum
+from lawly_db.db_models.enum_models import FieldTypeENum, DocumentStatusEnum
 from pydantic import BaseModel, Field
 
 
 class TemplateDTO(BaseModel):
     id: int = Field(..., description="Id шаблона")
+    user_id: int | None = Field(
+        None,
+        description="Id пользователя, которому принадлежит шаблон(для кастомных шаблонов)",
+    )
     name: str = Field(..., description="Название шаблона")
     name_ru: str = Field(..., description="Название шаблона на русском")
     description: str = Field(..., description="Описание шаблона")
@@ -29,7 +33,6 @@ class FieldDTO(BaseModel):
 
     class Config:
         from_attributes = True
-        orm_mode = True
 
 
 class DocumentDto(BaseModel):
@@ -42,7 +45,6 @@ class DocumentDto(BaseModel):
 
     class Config:
         from_attributes = True
-        orm_mode = True
 
 
 class TemplateInfoDto(BaseModel):
@@ -53,9 +55,34 @@ class TemplateInfoDto(BaseModel):
     image_url: str = Field(..., description="URL шаблона документа")
     download_url: str = Field(..., description="URL для скачивания шаблона")
 
-    required_documents: list[DocumentDto] = Field(..., description="Документы, связанные с шаблоном")
+    required_documents: list[DocumentDto] = Field(
+        ..., description="Документы, связанные с шаблоном"
+    )
     custom_fields: list[FieldDTO] = Field(..., description="Поля, связанные с шаблоном")
 
     class Config:
         from_attributes = True
-        orm_mode = True
+
+
+class CustomTemplateDTO(BaseModel):
+    name: str = Field(..., description="Название шаблона")
+    name_ru: str = Field(..., description="Название шаблона на русском")
+    description: str = Field(..., description="Описание шаблона")
+    image_url: str = Field(..., description="URL шаблона документа")
+    download_url: str = Field(..., description="URL для скачивания шаблона")
+
+
+class CreateTemplateDTO(BaseModel):
+    user_id: int
+    description: str
+
+
+class DocumentCreationDTO(BaseModel):
+    id: int = Field(..., description="Id документа")
+    user_id: int = Field(..., description="Id пользователя")
+    template_id: int = Field(..., description="Id шаблона")
+    status: DocumentStatusEnum = Field(..., description="Статус документа")
+    start_date: str = Field(..., description="Дата создания документа")
+    end_date: str = Field(..., description="Дата завершения документа")
+    custom_name: str = Field(..., description="Кастомное имя документа")
+    error_message: str = Field(..., description="Сообщение об ошибке")
