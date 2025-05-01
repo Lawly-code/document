@@ -1,5 +1,9 @@
 from modules.templates import GetTemplatesResponseDTO
-from modules.templates.dto import TemplateInfoDto, CustomTemplateDTO
+from modules.templates.dto import (
+    TemplateInfoDto,
+    CustomTemplateDTO,
+    TemplateDownloadDTO,
+)
 from shared import base_response
 
 templates_response = {
@@ -25,7 +29,7 @@ download_template_response = {
     **base_response,
     200: {
         "description": "Ссылка на скачивание шаблона",
-        "model": str,
+        "model": TemplateDownloadDTO,
     },
     404: {
         "description": "Шаблон не найден",

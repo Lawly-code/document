@@ -86,3 +86,7 @@ class DocumentCreationDTO(BaseModel):
     end_date: str = Field(..., description="Дата завершения документа")
     custom_name: str = Field(..., description="Кастомное имя документа")
     error_message: str = Field(..., description="Сообщение об ошибке")
+
+
+class TemplateDownloadDTO(BaseModel):
+    download_url: str = Field(..., description="URL для скачивания шаблона")
