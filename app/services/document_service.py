@@ -10,13 +10,12 @@ from modules.documents import (
     DocumentCreateWithIdDTO,
     DocumentCreationResponseDTO,
     DocumentCreationUpdateWithUserIdDTO,
-    DocumentUpdateEnum,
     DocumentDto,
     DocumentStructureDTO,
     ImproveTextDTO,
     ImprovedTextResponseDTO,
-    ImproveTextEnum,
 )
+from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
 from repositories.document_creation_repository import DocumentCreationRepository
 from repositories.document_repository import DocumentRepository
 

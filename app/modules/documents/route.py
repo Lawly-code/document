@@ -21,9 +21,8 @@ from modules.documents import (
     improve_text_description,
     improve_text_response,
     ImproveTextDTO,
-    DocumentUpdateEnum,
-    ImproveTextEnum,
 )
+from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
 from services.document_service import DocumentService
 
 router = APIRouter(tags=["Документы"])
@@ -119,7 +118,7 @@ async def get_documents(
 
 
 @router.get(
-    "document-structure/{document_id}",
+    "/document-structure/{document_id}",
     summary="Получение структуры документа",
     description=get_document_structure_description,
     response_model=DocumentStructureDTO,

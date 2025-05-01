@@ -1,14 +1,9 @@
 from contextlib import asynccontextmanager
 
-# from dotenv import load_dotenv
-
 from api import router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from lawly_db.db_models.db_session import global_init
-
-
-# load_dotenv("./.env")
 
 
 @asynccontextmanager

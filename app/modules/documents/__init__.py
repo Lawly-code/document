@@ -28,7 +28,6 @@ from .response import (
 )
 from .route import router
 
-from .enum import DocumentUpdateEnum, ImproveTextEnum
 
 __all__ = [
     "router",
@@ -53,6 +52,4 @@ __all__ = [
     "get_documents_response",
     "get_document_structure_response",
     "improve_text_response",
-    "DocumentUpdateEnum",
-    "ImproveTextEnum",
 ]

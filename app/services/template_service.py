@@ -52,7 +52,8 @@ class TemplateService:
         :return: Информация о шаблоне
         """
         template = await self.template_repo.get_template_by_id(template_id)
-        print("получаем шаблон")
+        if not template:
+            return None
         documents = {}
         custom_fields = []
         template_fields = template.fields

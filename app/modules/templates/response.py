@@ -41,4 +41,5 @@ custom_template_response = {
     400: {
         "description": "Ошибка создания кастомного шаблона",
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }
