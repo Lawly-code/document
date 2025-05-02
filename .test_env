@@ -1,0 +1,16 @@
+# DB
+test_db_host=test_db
+test_db_port=5432
+test_db_name=postgres
+test_db_login=postgres
+test_db_password=1234
+
+# Ciphers
+cipher_salt=my-secret-salt
+
+# JWT
+jwt_secret_key=my-jwt-secret
+jwt_algorithm=HS256
+jwt_access_token_expire_minutes=15
+jwt_refresh_token_expire_minutes=43200
+jwt_max_user_sessions=2
