@@ -180,8 +180,8 @@ async def test_download_template_success(ac: AsyncClient, session: AsyncSession)
     assert resp.status_code == 200
 
     download_url = resp.json()
-
-    assert download_url == "https://test_download_url"
+    assert "download_url" in download_url
+    assert download_url["download_url"] == "https://test_download_url"
 
     await session.delete(template)
     await session.commit()
