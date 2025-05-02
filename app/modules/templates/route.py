@@ -4,7 +4,6 @@ from api.auth.auth_bearer import JWTHeader, JWTBearer
 from modules.templates import (
     get_templates_description,
     GetTemplatesResponseDTO,
-    templates_response,
     GetTemplateDTO,
     get_template_info_description,
     TemplateInfoDto,
@@ -14,6 +13,9 @@ from modules.templates import (
     CustomTemplateDTO,
     custom_template_response,
     CreateTemplateDTO,
+    TemplateDownloadDTO,
+    templates_response,
+    download_template_response,
 )
 from services.template_service import TemplateService
 
@@ -73,8 +75,8 @@ async def get_template_info(
     "/templates/{template_id}/download",
     summary="Получение ссылки на скачивание шаблона",
     description=download_template_description,
-    response_model=str,
-    responses=template_info_response,
+    response_model=TemplateDownloadDTO,
+    responses=download_template_response,
     status_code=status.HTTP_200_OK,
 )
 async def download_template(

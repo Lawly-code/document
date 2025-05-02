@@ -21,9 +21,8 @@ from modules.documents import (
     improve_text_description,
     improve_text_response,
     ImproveTextDTO,
-    DocumentUpdateEnum,
-    ImproveTextEnum,
 )
+from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
 from services.document_service import DocumentService
 
 router = APIRouter(tags=["Документы"])
@@ -103,11 +102,9 @@ async def update_document(
     response_model=list[DocumentDto],
     status_code=status.HTTP_200_OK,
     responses=get_documents_response,
+    dependencies=[Depends(JWTBearer())],
 )
-async def get_documents(
-    document_service: DocumentService = Depends(DocumentService),
-    token: JWTHeader = Depends(JWTBearer()),
-):
+async def get_documents(document_service: DocumentService = Depends(DocumentService)):
     """
     Получение списка базовых документов пользователя
     :param document_service:
@@ -119,17 +116,17 @@ async def get_documents(
 
 
 @router.get(
-    "document-structure/{document_id}",
+    "/document-structure/{document_id}",
     summary="Получение структуры документа",
     description=get_document_structure_description,
     response_model=DocumentStructureDTO,
     status_code=status.HTTP_200_OK,
     responses=get_document_structure_response,
+    dependencies=[Depends(JWTBearer())],
 )
 async def get_document_structure(
     document_id: int,
     document_service: DocumentService = Depends(DocumentService),
-    token: JWTHeader = Depends(JWTBearer()),
 ):
     """
     Получение структуры документа
@@ -155,11 +152,11 @@ async def get_document_structure(
     response_model=ImprovedTextResponseDTO,
     status_code=status.HTTP_200_OK,
     responses=improve_text_response,
+    dependencies=[Depends(JWTBearer())],
 )
 async def improve_text(
     improve_text_dto: ImproveTextDTO,
     document_service: DocumentService = Depends(DocumentService),
-    token: JWTHeader = Depends(JWTBearer()),
 ):
     """
     Улучшение текста

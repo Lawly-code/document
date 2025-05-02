@@ -15,6 +15,7 @@ from .dto import (
     CustomTemplateDTO,
     CreateTemplateDTO,
     DocumentCreationDTO,
+    TemplateDownloadDTO,
 )
 
 from .response import (
@@ -23,6 +24,8 @@ from .response import (
     download_template_response,
     custom_template_response,
 )
+
+from .route import router
 
 __all__ = [
     "get_templates_description",
@@ -42,4 +45,6 @@ __all__ = [
     "template_info_response",
     "download_template_response",
     "custom_template_response",
+    "router",
+    "TemplateDownloadDTO",
 ]

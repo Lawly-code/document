@@ -7,6 +7,7 @@ create_document_response = {
         "description": "Документ успешно создан",
         "model": DocumentCreationResponseDTO,
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }
 
 update_document_response = {
@@ -18,6 +19,7 @@ update_document_response = {
     404: {
         "description": "Документ не найден у данного пользователя",
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }
 
 get_documents_response = {
@@ -26,6 +28,7 @@ get_documents_response = {
         "description": "Список документов",
         "model": list[DocumentDto],
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }
 get_document_structure_response = {
     **base_response,
@@ -36,6 +39,7 @@ get_document_structure_response = {
     404: {
         "description": "Документ не найден",
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }
 
 improve_text_response = {
@@ -47,4 +51,5 @@ improve_text_response = {
     400: {
         "description": "Ошибка при улучшении текста",
     },
+    403: {"description": "Нет доступа к ресурсу"},
 }

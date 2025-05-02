@@ -13,6 +13,7 @@ from modules.templates import (
     CreateTemplateDTO,
     CustomTemplateDTO,
 )
+from modules.templates.dto import TemplateDownloadDTO
 from repositories.template_repository import TemplateRepository
 
 
@@ -52,7 +53,8 @@ class TemplateService:
         :return: Информация о шаблоне
         """
         template = await self.template_repo.get_template_by_id(template_id)
-        print("получаем шаблон")
+        if not template:
+            return None
         documents = {}
         custom_fields = []
         template_fields = template.fields
@@ -83,7 +85,9 @@ class TemplateService:
             download_url=template.download_url,
         )
 
-    async def get_template_download_url_service(self, template_id: int) -> str | None:
+    async def get_template_download_url_service(
+        self, template_id: int
+    ) -> TemplateDownloadDTO | None:
         """
         Получение ссылки на скачивание шаблона
         :param template_id: ID шаблона
@@ -92,7 +96,7 @@ class TemplateService:
         template = await self.template_repo.get_template_by_id(template_id)
         if template is None:
             return None
-        return template.download_url
+        return TemplateDownloadDTO(download_url=template.download_url)
 
     async def create_custom_template_service(
         self, create_template_dto: CreateTemplateDTO
