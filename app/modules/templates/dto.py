@@ -1,4 +1,4 @@
-from lawly_db.db_models.enum_models import FieldTypeENum, DocumentStatusEnum
+from lawly_db.db_models.enum_models import DocumentStatusEnum
 from pydantic import BaseModel, Field
 
 
@@ -29,7 +29,7 @@ class GetTemplateDTO(BaseModel):
 class FieldDTO(BaseModel):
     id: int = Field(..., description="ID поля")
     name: str = Field(..., description="Название поля", max_length=255)
-    type: FieldTypeENum = Field(..., description="Тип поля")
+    type: str = Field(..., description="Тип поля")
 
     class Config:
         from_attributes = True

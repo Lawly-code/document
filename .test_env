@@ -14,3 +14,9 @@ jwt_algorithm=HS256
 jwt_access_token_expire_minutes=15
 jwt_refresh_token_expire_minutes=43200
 jwt_max_user_sessions=2
+
+#S3
+s3_endpoint_url=http://s3
+s3_access_key=lawly
+s3_secret_key=lawly
+s3_bucket_name=lawly

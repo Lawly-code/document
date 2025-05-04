@@ -7,3 +7,9 @@ class DocumentUpdateEnum(Enum):
 
 class ImproveTextEnum(Enum):
     ERROR = "error"
+
+
+class GenerateDocumentEnum(Enum):
+    ERROR = "error"
+    NOT_FOUND = "not_found"
+    GENERATE_SUCCESS = "generate_success"

@@ -1,0 +1,65 @@
+from fastapi.responses import StreamingResponse
+from io import BytesIO
+from docx import Document
+from typing import List
+import asyncio
+
+from modules.documents.dto import GenerateDocumentFieldDTO
+from repositories.s3_repository import S3Object
+
+
+class WordTemplateProcessor:
+    @staticmethod
+    async def fill_template(
+        s3_object: S3Object, fields: List[GenerateDocumentFieldDTO]
+    ) -> StreamingResponse:
+        """
+        Fill the DOCX template with provided fields and return as StreamingResponse.
+
+        Args:
+            s3_object (S3Object): The original DOCX template as S3Object.
+            fields (List[GenerateDocumentFieldDTO]): List of field mappings {name: ..., value: ...}
+
+        Returns:
+            StreamingResponse: Filled DOCX ready to download
+        """
+
+        loop = asyncio.get_event_loop()
+        output_stream = await loop.run_in_executor(
+            None, WordTemplateProcessor._process_docx, s3_object, fields
+        )
+
+        return StreamingResponse(
+            output_stream,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": "attachment; filename=filled_template.docx"
+            },
+        )
+
+    @staticmethod
+    def _process_docx(
+        s3_object: S3Object, fields: List[GenerateDocumentFieldDTO]
+    ) -> BytesIO:
+        template_stream = BytesIO(s3_object.body)
+        doc = Document(template_stream)
+
+        replacements = {f"<{field.name}>": field.value for field in fields}
+
+        for paragraph in doc.paragraphs:
+            for search_text, replace_text in replacements.items():
+                if search_text in paragraph.text:
+                    paragraph.text = paragraph.text.replace(search_text, replace_text)
+
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for search_text, replace_text in replacements.items():
+                        if search_text in cell.text:
+                            cell.text = cell.text.replace(search_text, replace_text)
+
+        output_stream = BytesIO()
+        doc.save(output_stream)
+        output_stream.seek(0)
+
+        return output_stream

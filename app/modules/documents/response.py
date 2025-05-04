@@ -1,3 +1,4 @@
+from modules.documents import DocumentStructureDTO
 from modules.documents.dto import DocumentCreationResponseDTO, DocumentDto
 from shared import base_response
 
@@ -34,7 +35,7 @@ get_document_structure_response = {
     **base_response,
     200: {
         "description": "Структура документа",
-        "model": DocumentDto,
+        "model": DocumentStructureDTO,
     },
     404: {
         "description": "Документ не найден",
@@ -50,6 +51,22 @@ improve_text_response = {
     },
     400: {
         "description": "Ошибка при улучшении текста",
+    },
+    403: {"description": "Нет доступа к ресурсу"},
+}
+
+generate_document_response = {
+    **base_response,
+    200: {
+        "description": "Документ успешно создан",
+        "content": {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {"type": "string", "format": "binary"}
+            }
+        },
+    },
+    400: {
+        "description": "Ошибка при создании документа",
     },
     403: {"description": "Нет доступа к ресурсу"},
 }

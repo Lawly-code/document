@@ -5,6 +5,7 @@ from lawly_db.db_models import DocumentCreation
 from lawly_db.db_models.db_session import get_session
 from lawly_db.db_models.enum_models import DocumentStatusEnum
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import StreamingResponse
 
 from modules.documents import (
     DocumentCreateWithIdDTO,
@@ -14,10 +15,18 @@ from modules.documents import (
     DocumentStructureDTO,
     ImproveTextDTO,
     ImprovedTextResponseDTO,
+    GenerateDocumentDTO,
 )
-from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
+from modules.documents.enum import (
+    DocumentUpdateEnum,
+    ImproveTextEnum,
+    GenerateDocumentEnum,
+)
 from repositories.document_creation_repository import DocumentCreationRepository
 from repositories.document_repository import DocumentRepository
+from repositories.s3_repository import S3Client
+from repositories.template_repository import TemplateRepository
+from utils.word_template_processor import WordTemplateProcessor
 
 
 class DocumentService:
@@ -25,6 +34,7 @@ class DocumentService:
         self.session = session
         self.document_creation_repo = DocumentCreationRepository(session)
         self.document_repo = DocumentRepository(session)
+        self.template_repo = TemplateRepository(session)
 
     async def create_document_service(
         self, document_create: DocumentCreateWithIdDTO
@@ -109,3 +119,28 @@ class DocumentService:
         except Exception as e:
             print(f"Error improving text: {e}")
             return ImproveTextEnum.ERROR
+
+    async def generate_document_service(
+        self, generate_document_dto: GenerateDocumentDTO
+    ) -> StreamingResponse | GenerateDocumentEnum:
+        """
+        Генерирует документ
+        :param generate_document_dto: DTO для генерации документа
+        :return:
+        """
+        try:
+            template = await self.template_repo.get_template_by_id(
+                template_id=generate_document_dto.template_id
+            )
+            if not template:
+                return GenerateDocumentEnum.NOT_FOUND
+            bucket_location = S3Client.from_url(url=template.download_url)
+            document_s3_obj = await S3Client.get_object(
+                bucket=bucket_location.bucket, key=bucket_location.key
+            )
+            return await WordTemplateProcessor.fill_template(
+                s3_object=document_s3_obj, fields=generate_document_dto.fields
+            )
+        except Exception as e:
+            print(f"Error generating document: {e}")
+            return GenerateDocumentEnum.ERROR
