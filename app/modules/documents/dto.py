@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from lawly_db.db_models.enum_models import FieldTypeENum, DocumentStatusEnum
+from lawly_db.db_models.enum_models import DocumentStatusEnum
 from pydantic import BaseModel, Field
 
 
@@ -93,7 +93,3 @@ class GenerateDocumentFieldDTO(BaseModel):
 class GenerateDocumentDTO(BaseModel):
     template_id: int = Field(..., description="ID шаблона документа")
     fields: list[GenerateDocumentFieldDTO] = Field(..., description="Поля документа")
-
-
-class GenerateDocumentResponseDTO(BaseModel):
-    status: FieldTypeENum = Field(..., description="Статус генерации документа")
