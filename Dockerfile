@@ -7,4 +7,4 @@ RUN python -m pip install --upgrade pip
 ADD requirements.txt .
 RUN pip install -U -r requirements.txt
 ADD .. .
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--timeout-keep-alive", "60"]

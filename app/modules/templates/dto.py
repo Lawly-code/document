@@ -64,14 +64,6 @@ class TemplateInfoDto(BaseModel):
         from_attributes = True
 
 
-class CustomTemplateDTO(BaseModel):
-    name: str = Field(..., description="Название шаблона")
-    name_ru: str = Field(..., description="Название шаблона на русском")
-    description: str = Field(..., description="Описание шаблона")
-    image_url: str = Field(..., description="URL шаблона документа")
-    download_url: str = Field(..., description="URL для скачивания шаблона")
-
-
 class CreateTemplateDTO(BaseModel):
     user_id: int
     description: str

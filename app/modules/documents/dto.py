@@ -81,6 +81,10 @@ class ImproveTextDTO(BaseModel):
     text: str = Field(..., description="Текст для улучшения")
 
 
+class ImproveTextWithUserIDDTO(ImproveTextDTO):
+    user_id: int = Field(..., description="ID пользователя, отправившего текст")
+
+
 class ImprovedTextResponseDTO(BaseModel):
     improved_text: str = Field(..., description="Улучшенный текст")
 

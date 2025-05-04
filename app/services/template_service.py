@@ -1,7 +1,11 @@
 from fastapi import Depends
 from lawly_db.db_models import Template
 from lawly_db.db_models.db_session import get_session
+from protos.ai_service.client import AIAssistantClient
+from protos.ai_service.dto import AIRequestDTO
+from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.responses import StreamingResponse
 
 from modules.templates import (
     GetTemplateDTO,
@@ -11,10 +15,11 @@ from modules.templates import (
     DocumentDto,
     FieldDTO,
     CreateTemplateDTO,
-    CustomTemplateDTO,
 )
 from modules.templates.dto import TemplateDownloadDTO
+from modules.templates.enum import CreateCustomTemplateEnum
 from repositories.template_repository import TemplateRepository
+from utils.word_template_processor import WordTemplateProcessor
 
 
 class TemplateService:
@@ -100,22 +105,40 @@ class TemplateService:
 
     async def create_custom_template_service(
         self, create_template_dto: CreateTemplateDTO
-    ) -> CustomTemplateDTO:
+    ) -> StreamingResponse | CreateCustomTemplateEnum:
         """
         Создание кастомного шаблона
         :param create_template_dto: DTO для создания кастомного шаблона
         :return: Информация о созданном шаблоне
         """
-        ai_description = (
-            create_template_dto.description + "\n\nСоздание нейронкой Lawly"
+        client_auth = UserServiceClient(host="user_grpc_service", port=50051)
+        client_auth_info = await client_auth.get_user_info(
+            user_id=create_template_dto.user_id
         )
+        if (
+            not client_auth_info.can_create_custom_templates
+            or not client_auth_info.can_user_ai
+        ):
+            return CreateCustomTemplateEnum.ACCESS_DENIED
+        client = AIAssistantClient(host="ai_grpc_service", port=50051)
+        ai_description = await client.custom_template(
+            request_data=AIRequestDTO(user_prompt=create_template_dto.description)
+        )
+        if not ai_description:
+            return CreateCustomTemplateEnum.ERROR
+        name_ru = "Тестовый шаблон"
         generate_template = Template(
             user_id=create_template_dto.user_id,
             name="Test template",
             name_ru="Тестовый шаблон",
-            description=ai_description,
+            description="Тестовое описание шаблона",
             image_url="https://example.com/image.png",
             download_url="https://example.com/download.zip",
         )
         await self.template_repo.create(entity=generate_template)
-        return CustomTemplateDTO.model_validate(generate_template, from_attributes=True)
+
+        filename = name_ru + ".docx"
+
+        return await WordTemplateProcessor.generate_docx_response(
+            text=ai_description.assistant_reply, filename=filename
+        )

@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from docx import Document
@@ -63,3 +65,34 @@ class WordTemplateProcessor:
         output_stream.seek(0)
 
         return output_stream
+
+    @staticmethod
+    async def generate_docx_response(text: str, filename: str) -> StreamingResponse:
+        """
+        Асинхронная генерация ответа FastAPI для скачивания docx-файла из текста.
+
+        :param text: Текст, который будет записан в Word-документ.
+        :param filename: Название файла для скачивания (с расширением .docx).
+        :return: StreamingResponse для FastAPI.
+        """
+
+        # Создаем новый документ
+        doc = Document()
+        doc.add_paragraph(text)
+
+        # Сохраняем документ в оперативную память
+        docx_io = BytesIO()
+        doc.save(docx_io)
+        docx_io.seek(0)
+
+        # Кодируем имя файла для корректного отображения
+        quoted_filename = quote(filename)
+
+        # Возвращаем StreamingResponse
+        return StreamingResponse(
+            docx_io,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": f"attachment; filename*=utf-8''{quoted_filename}"
+            },
+        )

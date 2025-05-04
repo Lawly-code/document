@@ -25,10 +25,11 @@ from modules.documents import (
     GenerateDocumentDTO,
     generate_document_response,
 )
+from modules.documents.dto import ImproveTextWithUserIDDTO
 from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
 from services.document_service import DocumentService
 
-router = APIRouter(tags=["Документы"])
+router = APIRouter(tags=["Документы"], prefix="/documents")
 
 
 @router.post(
@@ -99,7 +100,7 @@ async def update_document(
 
 
 @router.get(
-    "/documents",
+    "",
     summary="Получение списка базовых документов пользователя",
     description=get_documents_description,
     response_model=list[DocumentDto],
@@ -155,11 +156,11 @@ async def get_document_structure(
     response_model=ImprovedTextResponseDTO,
     status_code=status.HTTP_200_OK,
     responses=improve_text_response,
-    dependencies=[Depends(JWTBearer())],
 )
 async def improve_text(
     improve_text_dto: ImproveTextDTO,
     document_service: DocumentService = Depends(DocumentService),
+    token: JWTHeader = Depends(JWTBearer()),
 ):
     """
     Улучшение текста
@@ -168,10 +169,19 @@ async def improve_text(
     :param token:
     :return:
     """
+    improve_text_dto = ImproveTextWithUserIDDTO(
+        user_id=token.user_id,
+        text=improve_text_dto.text,
+    )
     result = await document_service.improve_text_service(
         improve_text_dto=improve_text_dto
     )
-    if result == ImproveTextEnum.ERROR:
+    if result == ImproveTextEnum.ACCESS_DENIED:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="У вас недостаточно прав для выполнения этого действия",
+        )
+    elif result == ImproveTextEnum.ERROR:
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="Ошибка при улучшении текста",

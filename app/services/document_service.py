@@ -4,6 +4,9 @@ from fastapi import Depends
 from lawly_db.db_models import DocumentCreation
 from lawly_db.db_models.db_session import get_session
 from lawly_db.db_models.enum_models import DocumentStatusEnum
+from protos.ai_service.client import AIAssistantClient
+from protos.ai_service.dto import AIRequestDTO
+from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import StreamingResponse
 
@@ -13,10 +16,10 @@ from modules.documents import (
     DocumentCreationUpdateWithUserIdDTO,
     DocumentDto,
     DocumentStructureDTO,
-    ImproveTextDTO,
     ImprovedTextResponseDTO,
     GenerateDocumentDTO,
 )
+from modules.documents.dto import ImproveTextWithUserIDDTO
 from modules.documents.enum import (
     DocumentUpdateEnum,
     ImproveTextEnum,
@@ -105,20 +108,26 @@ class DocumentService:
         )
 
     async def improve_text_service(
-        self, improve_text_dto: ImproveTextDTO
+        self, improve_text_dto: ImproveTextWithUserIDDTO
     ) -> ImprovedTextResponseDTO | ImproveTextEnum:
         """
         Улучшает текст документа
         :param improve_text_dto: DTO для улучшения текста
         :return: улучшенный текст
         """
-        try:
-            # Здесь должна быть логика улучшения текста
-            improved_text = improve_text_dto.text + " улучшили"
-            return ImprovedTextResponseDTO(improved_text=improved_text)
-        except Exception as e:
-            print(f"Error improving text: {e}")
+        client_auth = UserServiceClient(host="user_grpc_service", port=50051)
+        client_auth_info = await client_auth.get_user_info(
+            user_id=improve_text_dto.user_id
+        )
+        if not client_auth_info.can_user_ai:
+            return ImproveTextEnum.ACCESS_DENIED
+        client = AIAssistantClient(host="ai_grpc_service", port=50051)
+        improved_text = await client.improve_text(
+            request_data=AIRequestDTO(user_prompt=improve_text_dto.text)
+        )
+        if not improved_text:
             return ImproveTextEnum.ERROR
+        return ImprovedTextResponseDTO(improved_text=improved_text.assistant_reply)
 
     async def generate_document_service(
         self, generate_document_dto: GenerateDocumentDTO

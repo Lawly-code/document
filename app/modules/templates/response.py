@@ -1,7 +1,6 @@
 from modules.templates import GetTemplatesResponseDTO
 from modules.templates.dto import (
     TemplateInfoDto,
-    CustomTemplateDTO,
     TemplateDownloadDTO,
 )
 from shared import base_response
@@ -39,8 +38,12 @@ download_template_response = {
 custom_template_response = {
     **base_response,
     201: {
-        "description": "Шаблон успешно создан",
-        "model": CustomTemplateDTO,
+        "description": "Документ успешно создан",
+        "content": {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {"type": "string", "format": "binary"}
+            }
+        },
     },
     400: {
         "description": "Ошибка создания кастомного шаблона",

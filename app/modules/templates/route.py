@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Query, Depends, Response, Path
+from starlette.responses import StreamingResponse
 
 from api.auth.auth_bearer import JWTHeader, JWTBearer
 from modules.templates import (
@@ -10,20 +11,20 @@ from modules.templates import (
     template_info_response,
     download_template_description,
     custom_template_description,
-    CustomTemplateDTO,
     custom_template_response,
     CreateTemplateDTO,
     TemplateDownloadDTO,
     templates_response,
     download_template_response,
 )
+from modules.templates.enum import CreateCustomTemplateEnum
 from services.template_service import TemplateService
 
-router = APIRouter(tags=["Шаблоны"])
+router = APIRouter(tags=["Шаблоны"], prefix="/templates")
 
 
 @router.get(
-    "/templates",
+    "",
     summary="Получение доступных шаблонов",
     description=get_templates_description,
     response_model=GetTemplatesResponseDTO,
@@ -47,7 +48,7 @@ async def get_templates(
 
 
 @router.get(
-    "/templates/{template_id}",
+    "/{template_id}",
     summary="Получение информации о шаблоне",
     description=get_template_info_description,
     response_model=TemplateInfoDto,
@@ -72,7 +73,7 @@ async def get_template_info(
 
 
 @router.get(
-    "/templates/{template_id}/download",
+    "/{template_id}/download",
     summary="Получение ссылки на скачивание шаблона",
     description=download_template_description,
     response_model=TemplateDownloadDTO,
@@ -103,7 +104,7 @@ async def download_template(
     "/custom",
     summary="Создание кастомного шаблона",
     description=custom_template_description,
-    response_model=CustomTemplateDTO,
+    response_class=StreamingResponse,
     responses=custom_template_response,
     status_code=status.HTTP_201_CREATED,
 )
@@ -123,7 +124,13 @@ async def create_custom_template(
             user_id=token.user_id, description=description
         )
     )
-    if not result:
+    if result == CreateCustomTemplateEnum.ACCESS_DENIED:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="У вас нет прав на создание кастомного шаблона",
+        )
+
+    if result == CreateCustomTemplateEnum.ERROR:
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="Ошибка создания кастомного шаблона",

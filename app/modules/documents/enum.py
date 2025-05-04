@@ -7,6 +7,7 @@ class DocumentUpdateEnum(Enum):
 
 class ImproveTextEnum(Enum):
     ERROR = "error"
+    ACCESS_DENIED = "access_denied"
 
 
 class GenerateDocumentEnum(Enum):
