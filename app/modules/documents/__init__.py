@@ -17,6 +17,7 @@ from .dto import (
     DocumentStructureDTO,
     ImproveTextDTO,
     ImprovedTextResponseDTO,
+    GenerateDocumentDTO,
 )
 
 from .response import (
@@ -25,9 +26,9 @@ from .response import (
     get_documents_response,
     get_document_structure_response,
     improve_text_response,
+    generate_document_response,
 )
 from .route import router
-
 
 __all__ = [
     "router",
@@ -52,4 +53,6 @@ __all__ = [
     "get_documents_response",
     "get_document_structure_response",
     "improve_text_response",
+    "GenerateDocumentDTO",
+    "generate_document_response",
 ]

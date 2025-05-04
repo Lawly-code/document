@@ -7,3 +7,6 @@ get_documents_description = (
 )
 get_document_structure_description = "Получение информации о полях для документа"
 improve_text_description = "Преобразование обычного текста в юридический формат"
+generate_document_description = (
+    "Генерация документа на основе шаблона и данных пользователя"
+)

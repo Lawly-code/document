@@ -66,7 +66,8 @@ class DocumentDto(BaseModel):
 class FieldDTO(BaseModel):
     id: int = Field(..., description="ID поля")
     name: str = Field(..., description="Название поля", max_length=255)
-    type: FieldTypeENum = Field(..., description="Тип поля")
+    name_ru: str = Field(..., description="Название поля на русском", max_length=255)
+    type: str = Field(..., description="Тип поля")
 
     class Config:
         from_attributes = True
@@ -82,3 +83,17 @@ class ImproveTextDTO(BaseModel):
 
 class ImprovedTextResponseDTO(BaseModel):
     improved_text: str = Field(..., description="Улучшенный текст")
+
+
+class GenerateDocumentFieldDTO(BaseModel):
+    name: str = Field(..., description="Название поля")
+    value: str = Field(..., description="Значение поля")
+
+
+class GenerateDocumentDTO(BaseModel):
+    template_id: int = Field(..., description="ID шаблона документа")
+    fields: list[GenerateDocumentFieldDTO] = Field(..., description="Поля документа")
+
+
+class GenerateDocumentResponseDTO(BaseModel):
+    status: FieldTypeENum = Field(..., description="Статус генерации документа")

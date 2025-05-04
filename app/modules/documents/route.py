@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Depends, Response
+from fastapi.responses import StreamingResponse
 
 from api.auth.auth_bearer import JWTHeader, JWTBearer
 from modules.documents import (
@@ -21,6 +22,8 @@ from modules.documents import (
     improve_text_description,
     improve_text_response,
     ImproveTextDTO,
+    GenerateDocumentDTO,
+    generate_document_response,
 )
 from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
 from services.document_service import DocumentService
@@ -172,5 +175,35 @@ async def improve_text(
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="Ошибка при улучшении текста",
+        )
+    return result
+
+
+@router.post(
+    "/generate",
+    description="Генерация документа",
+    response_class=StreamingResponse,
+    status_code=status.HTTP_200_OK,
+    responses=generate_document_response,
+    dependencies=[Depends(JWTBearer())],
+)
+async def generate_document(
+    generate_document_dto: GenerateDocumentDTO,
+    document_service: DocumentService = Depends(DocumentService),
+):
+    """
+    Генерация документа
+    :param generate_document_dto: DTO для генерации документа
+    :param document_service:
+    :param token:
+    :return:
+    """
+    result = await document_service.generate_document_service(
+        generate_document_dto=generate_document_dto
+    )
+    if result == ImproveTextEnum.ERROR:
+        return Response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content="Ошибка при генерации документа",
         )
     return result
