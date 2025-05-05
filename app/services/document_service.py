@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import Depends
+from aiohttp import ClientSession
 from lawly_db.db_models import DocumentCreation
 from lawly_db.db_models.db_session import get_session
 from lawly_db.db_models.enum_models import DocumentStatusEnum
@@ -27,7 +28,7 @@ from modules.documents.enum import (
 )
 from repositories.document_creation_repository import DocumentCreationRepository
 from repositories.document_repository import DocumentRepository
-from repositories.s3_repository import S3Client
+from repositories.s3_repository import S3Object
 from repositories.template_repository import TemplateRepository
 from utils.word_template_processor import WordTemplateProcessor
 
@@ -143,9 +144,15 @@ class DocumentService:
             )
             if not template:
                 return GenerateDocumentEnum.NOT_FOUND
-            bucket_location = S3Client.from_url(url=template.download_url)
-            document_s3_obj = await S3Client.get_object(
-                bucket=bucket_location.bucket, key=bucket_location.key
+            # bucket_location = S3Client.from_url(url=template.download_url)
+            # document_s3_obj = await S3Client.get_object(
+            #     bucket=bucket_location.bucket, key=bucket_location.key
+            # )
+            async with ClientSession() as session:
+                async with session.get(template.download_url) as resp:
+                    document_s3_obj = await resp.read()
+            document_s3_obj = S3Object(
+                body=document_s3_obj, content_type="application/octet-stream"
             )
             return await WordTemplateProcessor.fill_template(
                 s3_object=document_s3_obj, fields=generate_document_dto.fields
