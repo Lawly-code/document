@@ -65,11 +65,8 @@ class TemplateService:
         template_fields = template.fields
 
         for field in template_fields:
-            print(field.id)
             if field.document:
-                await self.session.refresh(
-                    field.document, attribute_names=["fields"]
-                )  # 👈 прогружаем связи
+                await self.session.refresh(field.document, attribute_names=["fields"])
                 doc_dto = DocumentDto.model_validate(
                     field.document, from_attributes=True
                 )

@@ -28,6 +28,7 @@ class GetTemplateDTO(BaseModel):
 
 class FieldDTO(BaseModel):
     id: int = Field(..., description="ID поля")
+    name_ru: str = Field(..., description="Название поля на русском", max_length=255)
     name: str = Field(..., description="Название поля", max_length=255)
     type: str = Field(..., description="Тип поля")
 
