@@ -4,14 +4,15 @@ from datetime import datetime, UTC, timedelta
 from typing import AsyncGenerator
 from os import getenv as env
 
-import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 from lawly_db.db_models import User, RefreshSession
 from lawly_db.db_models.db_session import get_session, Base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import NullPool
-
+import pytest
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import random
 
@@ -113,3 +114,45 @@ async def register_dto() -> AsyncGenerator[RegisterDTO, None]:
         yield RegisterDTO(user=user, refresh_session=refresh_session, session=session)
         await session.delete(user)
         await session.commit()
+
+
+@pytest.fixture(autouse=True)
+def patch_grpc_and_ai(monkeypatch):
+    fake_user_client = AsyncMock()
+    fake_user_client.get_user_info = AsyncMock(
+        return_value=SimpleNamespace(
+            can_create_custom_templates=True,
+            can_user_ai=True,
+        )
+    )
+
+    monkeypatch.setattr(
+        'services.template_service.UserServiceClient',
+        lambda *args, **kwargs: fake_user_client,
+    )
+    monkeypatch.setattr(
+        'services.document_service.UserServiceClient',
+        lambda *args, **kwargs: fake_user_client,
+    )
+
+    fake_ai_client = AsyncMock()
+
+    async def fake_custom_template(request_data):
+        return SimpleNamespace(
+            assistant_reply=f"Шаблон по запросу: {request_data.user_prompt}"
+        )
+
+    async def fake_improve_text(request_data):
+        return SimpleNamespace(assistant_reply=f"Улучшено: {request_data.user_prompt}")
+
+    fake_ai_client.custom_template = AsyncMock(side_effect=fake_custom_template)
+    fake_ai_client.improve_text = AsyncMock(side_effect=fake_improve_text)
+
+    monkeypatch.setattr(
+        'services.template_service.AIAssistantClient',
+        lambda *args, **kwargs: fake_ai_client,
+    )
+    monkeypatch.setattr(
+        'services.document_service.AIAssistantClient',
+        lambda *args, **kwargs: fake_ai_client,
+    )

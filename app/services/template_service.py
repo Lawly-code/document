@@ -70,7 +70,7 @@ class TemplateService:
                 doc_dto = DocumentDto.model_validate(
                     field.document, from_attributes=True
                 )
-                documents[doc_dto.id] = doc_dto  # Убираем дубли по ID
+                documents[doc_dto.id] = doc_dto
             else:
                 custom_fields.append(
                     FieldDTO.model_validate(field, from_attributes=True)

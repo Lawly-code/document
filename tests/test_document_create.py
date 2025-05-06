@@ -19,7 +19,7 @@ async def test_document_create(
     session.add(template)
     await session.commit()
     resp = await ac.post(
-        "/api/v1/create",
+        "/api/v1/documents/create",
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={"template_id": template.id, "custom_name": "тестовое имя"},
     )
