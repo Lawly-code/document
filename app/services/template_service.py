@@ -67,13 +67,11 @@ class TemplateService:
         for field in template_fields:
             print(field.id)
             if field.document:
-                await self.session.refresh(
-                    field.document, attribute_names=["fields"]
-                )  # 👈 прогружаем связи
+                await self.session.refresh(field.document, attribute_names=["fields"])
                 doc_dto = DocumentDto.model_validate(
                     field.document, from_attributes=True
                 )
-                documents[doc_dto.id] = doc_dto  # Убираем дубли по ID
+                documents[doc_dto.id] = doc_dto
             else:
                 custom_fields.append(
                     FieldDTO.model_validate(field, from_attributes=True)

@@ -23,7 +23,7 @@ async def test_get_templates(ac: AsyncClient, session: AsyncSession):
     session.add(template2)
     await session.commit()
 
-    resp = await ac.get("/api/v1/templates", params={"query": "тестовы"})
+    resp = await ac.get("/api/v1/templates/templates", params={"query": "тестовы"})
 
     assert resp.status_code == 200
 
@@ -79,7 +79,7 @@ async def test_get_templates_with_empty_query(ac: AsyncClient, session: AsyncSes
     session.add(template2)
     await session.commit()
 
-    resp = await ac.get("/api/v1/templates", params={"query": ""})
+    resp = await ac.get("/api/v1/templates/templates", params={"query": ""})
 
     assert resp.status_code == 200
 

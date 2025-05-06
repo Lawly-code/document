@@ -100,7 +100,7 @@ async def update_document(
 
 
 @router.get(
-    "",
+    "/documents",
     summary="Получение списка базовых документов пользователя",
     description=get_documents_description,
     response_model=list[DocumentDto],

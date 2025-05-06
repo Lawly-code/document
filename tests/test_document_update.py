@@ -30,7 +30,7 @@ async def test_update_document_creation_status(
     await session.commit()
 
     resp = await ac.put(
-        f"/api/v1/update/{document.id}",
+        f"/api/v1/documents/update/{document.id}",
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={"status": "completed"},
     )
@@ -71,7 +71,9 @@ async def test_update_document_creation_not_authorized(
     session.add(document)
     await session.commit()
 
-    resp = await ac.put(f"/api/v1/update/{document.id}", json={"status": "completed"})
+    resp = await ac.put(
+        f"/api/v1/documents/update/{document.id}", json={"status": "completed"}
+    )
 
     await session.delete(document)
     await session.delete(template)
@@ -85,7 +87,7 @@ async def test_update_document_creation_status_404_not_found(
     non_existing_document_id = 999999
 
     resp = await ac.put(
-        f"/api/v1/update/{non_existing_document_id}",
+        f"/api/v1/documents/update/{non_existing_document_id}",
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={"status": "completed"},
     )
@@ -116,7 +118,7 @@ async def test_update_document_creation_status_422_validation_error(
     await session.commit()
 
     resp = await ac.put(
-        f"/api/v1/update/{document.id}",
+        f"/api/v1/documents/update/{document.id}",
         headers={"Authorization": f"Bearer {sign_jwt(user_id=register_dto.user.id)}"},
         json={"status": "INVALID_STATUS"},
     )

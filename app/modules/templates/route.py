@@ -24,7 +24,7 @@ router = APIRouter(tags=["Шаблоны"], prefix="/templates")
 
 
 @router.get(
-    "",
+    "/templates",
     summary="Получение доступных шаблонов",
     description=get_templates_description,
     response_model=GetTemplatesResponseDTO,
