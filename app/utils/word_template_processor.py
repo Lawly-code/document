@@ -5,6 +5,7 @@ from io import BytesIO
 from docx import Document
 from typing import List
 import asyncio
+import re
 
 from modules.documents.dto import GenerateDocumentFieldDTO
 from repositories.s3_repository import S3Object
@@ -96,3 +97,60 @@ class WordTemplateProcessor:
                 "Content-Disposition": f"attachment; filename*=utf-8''{quoted_filename}"
             },
         )
+
+    @staticmethod
+    async def replace_placeholders_with_underscores(
+        s3_object: S3Object, filename: str = "updated_template.docx"
+    ) -> StreamingResponse:
+        """
+        Заменяет все плейсхолдеры вида <...> в Word-документе на подчёркивания той же длины и возвращает StreamingResponse.
+
+        Args:
+            s3_object (S3Object): Исходный DOCX файл в виде S3Object.
+            filename (str): Имя итогового файла для скачивания.
+
+        Returns:
+            StreamingResponse: DOCX файл с заменой.
+        """
+
+        loop = asyncio.get_event_loop()
+        output_stream = await loop.run_in_executor(
+            None, WordTemplateProcessor._replace_all_placeholders, s3_object
+        )
+
+        quoted_filename = quote(filename)
+
+        return StreamingResponse(
+            output_stream,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": f"attachment; filename*=utf-8''{quoted_filename}"
+            },
+        )
+
+    @staticmethod
+    def _replace_all_placeholders(s3_object: S3Object) -> BytesIO:
+        template_stream = BytesIO(s3_object.body)
+        doc = Document(template_stream)
+
+        # Регулярка для поиска <...>
+        pattern = re.compile(r"<[^<>]+>")
+
+        def replace_in_text(text: str) -> str:
+            return pattern.sub(lambda m: "_" * len(m.group(0)), text)
+
+        # Заменяем в параграфах
+        for paragraph in doc.paragraphs:
+            paragraph.text = replace_in_text(paragraph.text)
+
+        # Заменяем в таблицах
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    cell.text = replace_in_text(cell.text)
+
+        output_stream = BytesIO()
+        doc.save(output_stream)
+        output_stream.seek(0)
+
+        return output_stream

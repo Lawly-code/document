@@ -58,6 +58,7 @@ class S3Client:
             config=boto3.session.Config(signature_version='s3v4'),
             aws_access_key_id=settings.s3_settings.access_key,
             aws_secret_access_key=settings.s3_settings.secret_key,
+            verify=False,
         ) as s3:
             bucket = await s3.Bucket(bucket)
             obj = await bucket.Object(key)
@@ -94,6 +95,7 @@ class S3Client:
             config=boto3.session.Config(signature_version='s3v4'),
             aws_access_key_id=settings.s3_settings.access_key,
             aws_secret_access_key=settings.s3_settings.secret_key,
+            verify=False,
         ) as s3:
             bucket = await s3.Bucket(bucket)
             await bucket.put_object(Key=key, Body=data, ContentType=content_type)
@@ -116,6 +118,7 @@ class S3Client:
             config=boto3.session.Config(signature_version='s3v4'),
             aws_access_key_id=settings.s3_settings.access_key,
             aws_secret_access_key=settings.s3_settings.secret_key,
+            verify=False,
         ) as s3:
             bucket = await s3.Bucket(bucket)
             try:

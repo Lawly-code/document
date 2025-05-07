@@ -16,8 +16,11 @@ from modules.templates import (
     TemplateDownloadDTO,
     templates_response,
     download_template_response,
+    download_empty_template,
+    DownloadEmptyTemplateDTO,
 )
-from modules.templates.enum import CreateCustomTemplateEnum
+
+from modules.templates.enum import CreateCustomTemplateEnum, DownloadEmptyTemplateEnum
 from services.template_service import TemplateService
 
 router = APIRouter(tags=["Шаблоны"], prefix="/templates")
@@ -106,7 +109,7 @@ async def download_template(
     description=custom_template_description,
     response_class=StreamingResponse,
     responses=custom_template_response,
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
 )
 async def create_custom_template(
     description: str | None = Query(None, description="Описание шаблона"),
@@ -134,5 +137,45 @@ async def create_custom_template(
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,
             content="Ошибка создания кастомного шаблона",
+        )
+    return result
+
+
+@router.post(
+    "/download-empty-template",
+    summary="Получение пустого шаблона",
+    description="Получение пустого шаблона для заполнения",
+    response_class=StreamingResponse,
+    status_code=status.HTTP_200_OK,
+    responses=download_empty_template,
+    dependencies=[Depends(JWTBearer())],
+)
+async def download_empty_template(
+    download_empty_template_dto: DownloadEmptyTemplateDTO,
+    template_service: TemplateService = Depends(TemplateService),
+):
+    """
+    Получение пустого шаблона
+    :param download_empty_template_dto: DTO для получения пустого шаблона
+    :param template_service:
+    :return:
+    """
+    result = await template_service.download_empty_template(
+        download_empty_template_dto=download_empty_template_dto
+    )
+    if result == DownloadEmptyTemplateEnum.ACCESS_DENIED:
+        return Response(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content="У вас нет прав на создание кастомного шаблона",
+        )
+    if result == DownloadEmptyTemplateEnum.ERROR:
+        return Response(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content="Ошибка создания кастомного шаблона",
+        )
+    if result == DownloadEmptyTemplateEnum.NOT_FOUND:
+        return Response(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content="Шаблон не найден",
         )
     return result

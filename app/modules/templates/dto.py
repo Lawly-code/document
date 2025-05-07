@@ -82,3 +82,7 @@ class DocumentCreationDTO(BaseModel):
 
 class TemplateDownloadDTO(BaseModel):
     download_url: str = Field(..., description="URL для скачивания шаблона")
+
+
+class DownloadEmptyTemplateDTO(BaseModel):
+    template_id: int = Field(..., description="Id шаблона")

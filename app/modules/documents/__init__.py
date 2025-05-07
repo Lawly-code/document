@@ -4,6 +4,7 @@ from .descriptions import (
     get_documents_description,
     get_document_structure_description,
     improve_text_description,
+    generate_document_description,
 )
 from .dto import (
     TemplateDTO,
@@ -55,4 +56,6 @@ __all__ = [
     "improve_text_response",
     "GenerateDocumentDTO",
     "generate_document_response",
+    "document_create_description",
+    "generate_document_description",
 ]

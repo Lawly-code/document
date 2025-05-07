@@ -24,6 +24,7 @@ from modules.documents import (
     ImproveTextDTO,
     GenerateDocumentDTO,
     generate_document_response,
+    generate_document_description,
 )
 from modules.documents.dto import ImproveTextWithUserIDDTO
 from modules.documents.enum import DocumentUpdateEnum, ImproveTextEnum
@@ -191,7 +192,8 @@ async def improve_text(
 
 @router.post(
     "/generate",
-    description="Генерация документа",
+    summary="Генерация документа",
+    description=generate_document_description,
     response_class=StreamingResponse,
     status_code=status.HTTP_200_OK,
     responses=generate_document_response,
