@@ -157,6 +157,5 @@ class DocumentService:
             return await WordTemplateProcessor.fill_template(
                 s3_object=document_s3_obj, fields=generate_document_dto.fields
             )
-        except Exception as e:
-            print(f"Error generating document: {e}")
+        except Exception:
             return GenerateDocumentEnum.ERROR

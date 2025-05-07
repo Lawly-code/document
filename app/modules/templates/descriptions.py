@@ -10,3 +10,4 @@ download_template_description = (
 custom_template_description = (
     "Создание документа на основе описания ситуации пользователем"
 )
+download_empty_template_description = "Скачивание незаполненного шаблона"

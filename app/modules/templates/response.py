@@ -37,7 +37,7 @@ download_template_response = {
 
 custom_template_response = {
     **base_response,
-    201: {
+    200: {
         "description": "Документ успешно создан",
         "content": {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
@@ -49,4 +49,21 @@ custom_template_response = {
         "description": "Ошибка создания кастомного шаблона",
     },
     403: {"description": "Нет доступа к ресурсу"},
+}
+
+download_empty_template = {
+    **base_response,
+    200: {
+        "description": "Шаблон успешно скачан",
+        "content": {
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {"type": "string", "format": "binary"}
+            }
+        },
+    },
+    400: {
+        "description": "Ошибка скачивания шаблона",
+    },
+    403: {"description": "Нет доступа к ресурсу"},
+    404: {"description": "Шаблон не найден"},
 }

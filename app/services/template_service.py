@@ -16,8 +16,9 @@ from modules.templates import (
     FieldDTO,
     CreateTemplateDTO,
 )
-from modules.templates.dto import TemplateDownloadDTO
-from modules.templates.enum import CreateCustomTemplateEnum
+from modules.templates.dto import TemplateDownloadDTO, DownloadEmptyTemplateDTO
+from modules.templates.enum import CreateCustomTemplateEnum, DownloadEmptyTemplateEnum
+from repositories.s3_repository import S3Client
 from repositories.template_repository import TemplateRepository
 from utils.word_template_processor import WordTemplateProcessor
 
@@ -139,3 +140,27 @@ class TemplateService:
         return await WordTemplateProcessor.generate_docx_response(
             text=ai_description.assistant_reply, filename=filename
         )
+
+    async def download_empty_template(
+        self, download_empty_template_dto: DownloadEmptyTemplateDTO
+    ) -> StreamingResponse | DownloadEmptyTemplateEnum:
+        """
+        Скачивание пустого шаблона
+        :param download_empty_template_dto: DTO для скачивания пустого шаблона
+        :return:
+        """
+        try:
+            template = await self.template_repo.get_template_by_id(
+                template_id=download_empty_template_dto.template_id
+            )
+            if not template:
+                return DownloadEmptyTemplateEnum.NOT_FOUND
+            bucket_location = S3Client.from_url(url=template.download_url)
+            document_s3_obj = await S3Client.get_object(
+                bucket=bucket_location.bucket, key=bucket_location.key
+            )
+            return await WordTemplateProcessor.replace_placeholders_with_underscores(
+                s3_object=document_s3_obj, filename=template.name_ru
+            )
+        except Exception:
+            return DownloadEmptyTemplateEnum.ERROR
