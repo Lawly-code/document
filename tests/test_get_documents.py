@@ -72,7 +72,7 @@ async def test_get_documents_with_not_authorized(
     await session.delete(document)
     await session.commit()
 
-    assert resp.status_code == 403
+    assert resp.status_code == 401
 
 
 async def test_get_document_structure_by_id_not_authorized(
@@ -92,7 +92,7 @@ async def test_get_document_structure_by_id_not_authorized(
     )
     await session.delete(document)
     await session.commit()
-    assert resp.status_code == 403
+    assert resp.status_code == 401
 
 
 async def test_get_document_structure_by_id_not_found_document(

@@ -78,7 +78,7 @@ async def test_update_document_creation_not_authorized(
     await session.delete(document)
     await session.delete(template)
     await session.commit()
-    assert resp.status_code == 403
+    assert resp.status_code == 401
 
 
 async def test_update_document_creation_status_404_not_found(

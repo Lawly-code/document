@@ -31,5 +31,4 @@ async def test_custom_template_create_with_not_token(
         params={"description": "test description"},
     )
 
-    assert resp_login.status_code == 403
-    assert resp_login.json() == {"detail": "Not authenticated"}
+    assert resp_login.status_code == 401

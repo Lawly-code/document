@@ -30,7 +30,11 @@ class FieldDTO(BaseModel):
     id: int = Field(..., description="ID поля")
     name_ru: str = Field(..., description="Название поля на русском", max_length=255)
     name: str = Field(..., description="Название поля", max_length=255)
-    type: str = Field(..., description="Тип поля")
+    name_ru: str = Field(..., description="Название поля на русском", max_length=255)
+    mask: str | None = Field(None, description="Маска поля", max_length=255)
+    example: str | None = Field(None, description="Пример поля", max_length=255)
+    filter_field: dict | None = Field(None, description="Фильтр поля")
+    can_improve_ai: bool = Field(..., description="Можно ли улучшить поле с помощью ИИ")
 
     class Config:
         from_attributes = True

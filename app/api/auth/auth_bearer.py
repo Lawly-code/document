@@ -1,5 +1,5 @@
 from fastapi import HTTPException, Request
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 
 from .auth_handler import decode_jwt
@@ -17,32 +17,31 @@ class JWTBearer(HTTPBearer):
         self.admin = admin
 
     async def __call__(self, request: Request) -> JWTHeader:
-        credentials: HTTPAuthorizationCredentials = await super(
-            JWTBearer, self
-        ).__call__(request)
-        # Смотрим, есть ли Authorization
-        if credentials:
-            if not credentials.scheme == "Bearer":
-                # Нет Bearer
-                raise HTTPException(
-                    status_code=403, detail="Invalid authentication scheme."
-                )
-            # расшифровываем JWT
-            decoded = self.verify_jwt(credentials.credentials)
-            if not decoded:
-                # Если ничего нет, то возвращаем 403
-                raise HTTPException(
-                    status_code=403, detail="Invalid token or expired token."
-                )
+        authorization: str = request.headers.get("Authorization")
 
-            header: JWTHeader = JWTHeader(**decoded)
-            # проверяем admin=True
-            if self.admin:
-                if not header.admin:
-                    raise HTTPException(status_code=403, detail="Not admin")
-            return header
-        else:
-            raise HTTPException(status_code=403, detail="Invalid authorization code.")
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+
+        scheme, _, token = authorization.partition(" ")
+
+        if scheme.lower() != "bearer":
+            raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+
+        if not token:
+            raise HTTPException(status_code=401, detail="Token not found")
+
+        decoded = self.verify_jwt(token)
+        if not decoded:
+            raise HTTPException(
+                status_code=401, detail="Invalid token or expired token."
+            )
+
+        header = JWTHeader(**decoded)
+
+        if self.admin and not header.admin:
+            raise HTTPException(status_code=401, detail="Admin privileges required")
+
+        return header
 
     @staticmethod
     def verify_jwt(jwt_token: str):

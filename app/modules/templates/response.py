@@ -48,7 +48,8 @@ custom_template_response = {
     400: {
         "description": "Ошибка создания кастомного шаблона",
     },
-    403: {"description": "Нет доступа к ресурсу"},
+    401: {"description": "Нет доступа к ресурсу"},
+    403: {"description": "Недостаточно прав для выполнения"},
 }
 
 download_empty_template = {
@@ -64,6 +65,6 @@ download_empty_template = {
     400: {
         "description": "Ошибка скачивания шаблона",
     },
-    403: {"description": "Нет доступа к ресурсу"},
+    401: {"description": "Нет доступа к ресурсу"},
     404: {"description": "Шаблон не найден"},
 }

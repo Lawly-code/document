@@ -34,4 +34,4 @@ async def test_improve_text_with_not_authorized(ac: AsyncClient):
         json={"text": "Пример обычного текста, который нужно улучшить"},
     )
 
-    assert resp.status_code == 403
+    assert resp.status_code == 401
