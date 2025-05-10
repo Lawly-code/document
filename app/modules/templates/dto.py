@@ -44,6 +44,7 @@ class DocumentDto(BaseModel):
     id: int = Field(..., description="Id документа")
     name: str = Field(..., description="Название документа")
     name_ru: str = Field(..., description="Название документа на русском")
+    is_personal: bool = Field(..., description="Является ли документ персональным")
     description: str = Field(..., description="Описание документа")
 
     fields: list[FieldDTO] = Field(..., description="Поля документа")
