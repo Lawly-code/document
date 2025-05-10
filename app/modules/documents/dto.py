@@ -56,6 +56,7 @@ class DocumentDto(BaseModel):
     id: int = Field(..., description="ID документа")
     name: str = Field(..., description="Название документа")
     name_ru: str = Field(..., description="Название документа на русском")
+    is_personal: bool = Field(..., description="Является ли документ персональным")
     link: str = Field(..., description="Ссылка на документ")
     description: str = Field(..., description="Описание документа")
 
