@@ -148,7 +148,6 @@ async def create_custom_template(
     response_class=StreamingResponse,
     status_code=status.HTTP_200_OK,
     responses=download_empty_template,
-    dependencies=[Depends(JWTBearer())],
 )
 async def download_empty_template(
     download_empty_template_dto: DownloadEmptyTemplateDTO,
@@ -163,11 +162,6 @@ async def download_empty_template(
     result = await template_service.download_empty_template(
         download_empty_template_dto=download_empty_template_dto
     )
-    if result == DownloadEmptyTemplateEnum.ACCESS_DENIED:
-        return Response(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content="У вас нет прав на создание кастомного шаблона",
-        )
     if result == DownloadEmptyTemplateEnum.ERROR:
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,

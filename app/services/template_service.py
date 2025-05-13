@@ -1,3 +1,4 @@
+from aiohttp import ClientSession
 from fastapi import Depends
 from lawly_db.db_models import Template
 from lawly_db.db_models.db_session import get_session
@@ -18,7 +19,7 @@ from modules.templates import (
 )
 from modules.templates.dto import TemplateDownloadDTO, DownloadEmptyTemplateDTO
 from modules.templates.enum import CreateCustomTemplateEnum, DownloadEmptyTemplateEnum
-from repositories.s3_repository import S3Client
+from repositories.s3_repository import S3Object
 from repositories.template_repository import TemplateRepository
 from utils.word_template_processor import WordTemplateProcessor
 
@@ -155,9 +156,11 @@ class TemplateService:
             )
             if not template:
                 return DownloadEmptyTemplateEnum.NOT_FOUND
-            bucket_location = S3Client.from_url(url=template.download_url)
-            document_s3_obj = await S3Client.get_object(
-                bucket=bucket_location.bucket, key=bucket_location.key
+            async with ClientSession() as session:
+                async with session.get(template.download_url) as resp:
+                    document_s3_obj = await resp.read()
+            document_s3_obj = S3Object(
+                body=document_s3_obj, content_type="application/octet-stream"
             )
             return await WordTemplateProcessor.replace_placeholders_with_underscores(
                 s3_object=document_s3_obj, filename=template.name_ru
