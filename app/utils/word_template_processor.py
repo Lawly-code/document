@@ -47,19 +47,27 @@ class WordTemplateProcessor:
         template_stream = BytesIO(s3_object.body)
         doc = Document(template_stream)
 
+        # Сначала заменим известные поля
         replacements = {f"<{field.name}>": field.value for field in fields}
 
-        for paragraph in doc.paragraphs:
+        def replace_known_and_unknown(text: str) -> str:
+            # Подставляем известные
             for search_text, replace_text in replacements.items():
-                if search_text in paragraph.text:
-                    paragraph.text = paragraph.text.replace(search_text, replace_text)
+                text = text.replace(search_text, replace_text)
 
+            # Оставшиеся плейсхолдеры типа <...> заменим на подчёркивания
+            pattern = re.compile(r"<[^<>]+>")
+            return pattern.sub(lambda m: "_" * len(m.group(0)), text)
+
+        # Заменяем в параграфах
+        for paragraph in doc.paragraphs:
+            paragraph.text = replace_known_and_unknown(paragraph.text)
+
+        # Заменяем в таблицах
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    for search_text, replace_text in replacements.items():
-                        if search_text in cell.text:
-                            cell.text = cell.text.replace(search_text, replace_text)
+                    cell.text = replace_known_and_unknown(cell.text)
 
         output_stream = BytesIO()
         doc.save(output_stream)
