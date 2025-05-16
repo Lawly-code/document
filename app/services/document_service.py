@@ -144,10 +144,6 @@ class DocumentService:
             )
             if not template:
                 return GenerateDocumentEnum.NOT_FOUND
-            # bucket_location = S3Client.from_url(url=template.download_url)
-            # document_s3_obj = await S3Client.get_object(
-            #     bucket=bucket_location.bucket, key=bucket_location.key
-            # )
             async with ClientSession() as session:
                 async with session.get(template.download_url) as resp:
                     document_s3_obj = await resp.read()
