@@ -1,6 +1,5 @@
 from aiohttp import ClientSession
 from fastapi import Depends
-from lawly_db.db_models import Template
 from lawly_db.db_models.db_session import get_session
 from protos.ai_service.client import AIAssistantClient
 from protos.ai_service.dto import AIRequestDTO
@@ -127,15 +126,6 @@ class TemplateService:
         )
         if not ai_description:
             return CreateCustomTemplateEnum.ERROR
-        generate_template = Template(
-            user_id=create_template_dto.user_id,
-            name="custom_template",
-            name_ru="Кастомный шаблон",
-            description="Кастомный шаблон",
-            image_url="https://example.com/image.png",
-            download_url="https://example.com/download.zip",
-        )
-        await self.template_repo.create(entity=generate_template)
 
         return await WordTemplateProcessor.fill_template(
             s3_object=LOCAL_TEMPLATE_OBJ,
