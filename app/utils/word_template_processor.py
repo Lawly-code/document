@@ -35,9 +35,7 @@ class WordTemplateProcessor:
         return StreamingResponse(
             output_stream,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={
-                "Content-Disposition": "attachment; filename=filled_template.docx"
-            },
+            headers={"Content-Disposition": "attachment; filename=template.docx"},
         )
 
     @staticmethod

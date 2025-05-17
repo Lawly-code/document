@@ -8,6 +8,7 @@ from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import StreamingResponse
 
+from modules.documents.dto import GenerateDocumentFieldDTO
 from modules.templates import (
     GetTemplateDTO,
     GetTemplatesResponseDTO,
@@ -21,6 +22,7 @@ from modules.templates.dto import TemplateDownloadDTO, DownloadEmptyTemplateDTO
 from modules.templates.enum import CreateCustomTemplateEnum, DownloadEmptyTemplateEnum
 from repositories.s3_repository import S3Object
 from repositories.template_repository import TemplateRepository
+from shared.templates import LOCAL_TEMPLATE_OBJ
 from utils.word_template_processor import WordTemplateProcessor
 
 
@@ -125,21 +127,23 @@ class TemplateService:
         )
         if not ai_description:
             return CreateCustomTemplateEnum.ERROR
-        name_ru = "Тестовый шаблон"
         generate_template = Template(
             user_id=create_template_dto.user_id,
-            name="Test template",
-            name_ru="Тестовый шаблон",
-            description="Тестовое описание шаблона",
+            name="custom_template",
+            name_ru="Кастомный шаблон",
+            description="Кастомный шаблон",
             image_url="https://example.com/image.png",
             download_url="https://example.com/download.zip",
         )
         await self.template_repo.create(entity=generate_template)
 
-        filename = name_ru + ".docx"
-
-        return await WordTemplateProcessor.generate_docx_response(
-            text=ai_description.assistant_reply, filename=filename
+        return await WordTemplateProcessor.fill_template(
+            s3_object=LOCAL_TEMPLATE_OBJ,
+            fields=[
+                GenerateDocumentFieldDTO(
+                    name="decription_text", value=ai_description.assistant_reply
+                )
+            ],
         )
 
     async def download_empty_template(
