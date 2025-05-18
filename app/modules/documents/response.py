@@ -1,5 +1,9 @@
 from modules.documents import DocumentStructureDTO
-from modules.documents.dto import DocumentCreationResponseDTO, DocumentDto
+from modules.documents.dto import (
+    DocumentCreationResponseDTO,
+    DocumentDto,
+    ImprovedTextResponseDTO,
+)
 from shared import base_response
 
 create_document_response = {
@@ -49,7 +53,7 @@ improve_text_response = {
     **base_response,
     200: {
         "description": "Текст успешно преобразован",
-        "model": DocumentDto,
+        "model": ImprovedTextResponseDTO,
     },
     400: {
         "description": "Ошибка при улучшении текста",
