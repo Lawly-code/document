@@ -18,6 +18,7 @@ from modules.templates import (
     download_template_response,
     download_empty_template,
     DownloadEmptyTemplateDTO,
+    CreateCustomTemplateDTO,
 )
 
 from modules.templates.enum import CreateCustomTemplateEnum, DownloadEmptyTemplateEnum
@@ -112,7 +113,7 @@ async def download_template(
     status_code=status.HTTP_200_OK,
 )
 async def create_custom_template(
-    description: str | None = Query(None, description="Описание шаблона"),
+    create_custom_template_dto: CreateCustomTemplateDTO,
     template_service: TemplateService = Depends(TemplateService),
     token: JWTHeader = Depends(JWTBearer()),
 ):
@@ -124,7 +125,7 @@ async def create_custom_template(
 
     result = await template_service.create_custom_template_service(
         create_template_dto=CreateTemplateDTO(
-            user_id=token.user_id, description=description
+            user_id=token.user_id, description=create_custom_template_dto.description
         )
     )
     if result == CreateCustomTemplateEnum.ACCESS_DENIED:

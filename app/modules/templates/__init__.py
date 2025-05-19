@@ -16,6 +16,7 @@ from .dto import (
     DocumentCreationDTO,
     TemplateDownloadDTO,
     DownloadEmptyTemplateDTO,
+    CreateCustomTemplateDTO,
 )
 
 from .response import (
@@ -49,4 +50,5 @@ __all__ = [
     "TemplateDownloadDTO",
     "download_empty_template",
     "DownloadEmptyTemplateDTO",
+    "CreateCustomTemplateDTO",
 ]

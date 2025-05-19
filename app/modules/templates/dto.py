@@ -92,3 +92,7 @@ class TemplateDownloadDTO(BaseModel):
 
 class DownloadEmptyTemplateDTO(BaseModel):
     template_id: int = Field(..., description="Id шаблона")
+
+
+class CreateCustomTemplateDTO(BaseModel):
+    description: str = Field(..., description="Описание шаблона")
