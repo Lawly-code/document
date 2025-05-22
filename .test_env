@@ -20,3 +20,8 @@ s3_endpoint_url=http://s3
 s3_access_key=lawly
 s3_secret_key=lawly
 s3_bucket_name=lawly
+
+user_grpc_host=user_grpc_service
+user_grpc_port=50051
+ai_grpc_host=ai_grpc_service
+ai_grpc_port=50051
