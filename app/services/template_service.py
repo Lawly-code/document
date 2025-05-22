@@ -7,6 +7,7 @@ from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import StreamingResponse
 
+from config import settings
 from modules.documents.dto import GenerateDocumentFieldDTO
 from modules.templates import (
     GetTemplateDTO,
@@ -111,7 +112,9 @@ class TemplateService:
         :param create_template_dto: DTO для создания кастомного шаблона
         :return: Информация о созданном шаблоне
         """
-        client_auth = UserServiceClient(host="user_grpc_service", port=50051)
+        client_auth = UserServiceClient(
+            host=settings.user_service.host, port=settings.user_service.port
+        )
         client_auth_info = await client_auth.get_user_info(
             user_id=create_template_dto.user_id
         )
@@ -120,7 +123,9 @@ class TemplateService:
             or not client_auth_info.can_user_ai
         ):
             return CreateCustomTemplateEnum.ACCESS_DENIED
-        client = AIAssistantClient(host="ai_grpc_service", port=50051)
+        client = AIAssistantClient(
+            host=settings.ai_service.host, port=settings.ai_service.port
+        )
         ai_description = await client.custom_template(
             request_data=AIRequestDTO(user_prompt=create_template_dto.description)
         )

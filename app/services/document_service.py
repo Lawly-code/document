@@ -11,6 +11,7 @@ from protos.user_service.client import UserServiceClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import StreamingResponse
 
+from config import settings
 from modules.documents import (
     DocumentCreateWithIdDTO,
     DocumentCreationResponseDTO,
@@ -116,13 +117,17 @@ class DocumentService:
         :param improve_text_dto: DTO для улучшения текста
         :return: улучшенный текст
         """
-        client_auth = UserServiceClient(host="user_grpc_service", port=50051)
+        client_auth = UserServiceClient(
+            host=settings.user_service.host, port=settings.user_service.port
+        )
         client_auth_info = await client_auth.get_user_info(
             user_id=improve_text_dto.user_id
         )
         if not client_auth_info.can_user_ai:
             return ImproveTextEnum.ACCESS_DENIED
-        client = AIAssistantClient(host="ai_grpc_service", port=50051)
+        client = AIAssistantClient(
+            host=settings.ai_service.host, port=settings.ai_service.port
+        )
         improved_text = await client.improve_text(
             request_data=AIRequestDTO(user_prompt=improve_text_dto.text)
         )

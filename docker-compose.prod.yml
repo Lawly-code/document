@@ -1,5 +1,5 @@
 services:
-  app:
+  prod-app:
     restart: always
     build:
       dockerfile: ../Dockerfile
